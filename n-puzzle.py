@@ -41,7 +41,7 @@ def swap(state, pos_1, pos_2):
     return state
 
 
-def misplaced(state, goal, N):
+def misplaced(state):
     '''
     Cuenta las piezas en posiciones incorrectas, excepto el vacio
     '''
@@ -52,7 +52,7 @@ def misplaced(state, goal, N):
     return count
 
 
-def manhattan(state, goal, N):
+def manhattan(state):
     '''
     Calcula la distancia de Manhattan
     '''
@@ -64,7 +64,7 @@ def manhattan(state, goal, N):
     return distance
 
 
-def is_solvable(initial, goal, N):
+def is_solvable():
     '''
     Verifica si el problema tiene solucion
     https://stackoverflow.com/a/34570524
@@ -100,7 +100,7 @@ def is_solvable(initial, goal, N):
         return parity % 2 == 0
 
 
-def print_puzzle(state, N):
+def print_puzzle(state):
     '''
     Imprime el arreglo en forma tabular
     '''
@@ -109,16 +109,16 @@ def print_puzzle(state, N):
     print()
 
 
-def a_star_search_manhattan(initial, goal, N):
+def a_star_search_manhattan():
     counter = 1
     sequence = PriorityQueue()
     hashtable = {}
 
-    if not is_solvable(initial, goal, N):
+    if not is_solvable():
         print('No tiene solucion')
         exit()
 
-    sequence.put((manhattan(initial, goal, N), counter))
+    sequence.put((manhattan(initial), counter))
     # Cada entrada en hashtable contiene [padre, estado, cambio_anterior, pasos]
     hashtable[counter] = [0, initial, 0, 0]
 
@@ -146,7 +146,7 @@ def a_star_search_manhattan(initial, goal, N):
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
                     counter += 1
-                    sequence.put((steps + manhattan(new_state, goal, N), counter))
+                    sequence.put((steps + manhattan(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
 
@@ -171,17 +171,17 @@ def a_star_search_manhattan(initial, goal, N):
     return counter - sequence.qsize()
 
 
-def a_star_search_misplaced(initial, goal, N):
+def a_star_search_misplaced():
     # global counter
     counter = 1
     sequence = PriorityQueue()
     hashtable = {}
 
-    if not is_solvable(initial, goal, N):
+    if not is_solvable():
         print('No tiene solucion')
         exit()
 
-    sequence.put((misplaced(initial, goal, N), counter))
+    sequence.put((misplaced(initial), counter))
     # Cada entrada en hashtable contiene [padre, estado, cambio_anterior, pasos]
     hashtable[counter] = [0, initial, 0, 0]
 
@@ -209,7 +209,7 @@ def a_star_search_misplaced(initial, goal, N):
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
                     counter += 1
-                    sequence.put((steps + misplaced(new_state, goal, N), counter))
+                    sequence.put((steps + misplaced(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
 
@@ -234,12 +234,12 @@ def a_star_search_misplaced(initial, goal, N):
     return counter - sequence.qsize()
 
 
-def breath_search(initial, goal, N):
+def breath_search():
     # global counter
     counter = 1
     hashtable = {}
 
-    if not is_solvable(initial, goal, N):
+    if not is_solvable():
         print('No tiene solucion')
         exit()
 
@@ -316,7 +316,7 @@ class App:
 
         self.tiempo = tkinter.StringVar()
         self.tiempo.set('')
-        tkinter.Label(master, text="Tiempo").grid(sticky="W", row=3)
+        tkinter.Label(master, text="Tiempo (s)").grid(sticky="W", row=3)
         tkinter.Label(master, textvariable=self.tiempo).grid(row=3, column=1)
 
         self.expandidos = tkinter.StringVar()
@@ -344,15 +344,15 @@ class App:
             method = a_star_search_misplaced
         else:
             method = breath_search
-        if is_solvable(initial, goal, N):
+        if is_solvable():
             self.tiempo.set('')
             self.expandidos.set('')
             self.estado.set('')
             start_time = time.time()
-            expanded = method(initial, goal, N)
+            expanded = method()
             elapsed_time = time.time() - start_time
-            print(elapsed_time)
-            self.tiempo.set(elapsed_time)
+            # print(elapsed_time)
+            self.tiempo.set('{:0.4f}'.format(elapsed_time))
             self.expandidos.set(expanded)
         else:
             self.tiempo.set('')

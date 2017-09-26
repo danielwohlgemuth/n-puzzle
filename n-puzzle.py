@@ -310,7 +310,7 @@ class App:
         self.method = tkinter.StringVar()
         self.method.set('A* Manhattan')
         tkinter.Label(master, text="Método").grid(sticky="W", row=1)
-        tkinter.OptionMenu(master, self.method, 'A* Manhattan', 'A* Desubicados', 'Anchura').grid(row=1, column=1)
+        tkinter.OptionMenu(master, self.method, 'A* Manhattan', 'A* mal ubicados', 'Anchura').grid(row=1, column=1)
 
         tkinter.Button(master, text="Ejecutar", command=self.callback).grid(row=2, column=1)
 
@@ -340,15 +340,25 @@ class App:
 
         if self.method.get() == 'A* Manhattan':
             method = a_star_search_manhattan
-        elif self.method.get() == 'A* Desubicados':
+        elif self.method.get() == 'A* mal ubicados':
             method = a_star_search_misplaced
         else:
             method = breath_search
+        if is_solvable(initial, goal, N):
+            self.tiempo.set('')
+            self.expandidos.set('')
+            self.estado.set('')
+            start_time = time.time()
+            expanded = method(initial, goal, N)
+            elapsed_time = time.time() - start_time
+            print(elapsed_time)
+            self.tiempo.set(elapsed_time)
+            self.expandidos.set(expanded)
+        else:
+            self.tiempo.set('')
+            self.expandidos.set('')
+            self.estado.set('No tiene solución')
 
-        start_time = time.time()
-        expanded = method(initial, goal, N)
-        self.tiempo.set(time.time() - start_time)
-        self.expandidos.set(expanded)
 
 
     def update(self):

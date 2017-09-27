@@ -313,6 +313,10 @@ def breath_search():
 
 
 class App:
+    '''
+    Construcción de la interfaz gráfica con Tkinter
+    '''
+
     def __init__(self, master):
         master.title("N-Puzzle")
 
@@ -349,6 +353,9 @@ class App:
         self.update()
 
     def callback(self):
+        '''
+        Ejecuta uno de los métodos con los datos proveídos
+        '''
         global initial
         initial = []
         for i in range(N*N):
@@ -376,6 +383,9 @@ class App:
             self.estado.set('No tiene solución')
 
     def update(self):
+        '''
+        Ajusta el tamaño del puzzle
+        '''
         global N, goal
         N = self.N.get()
 
@@ -402,6 +412,9 @@ class App:
         # print(goal)
 
     def generate(self):
+        '''
+        Genera un puzzle válido aleatorio
+        '''
         create_puzzle()
         self.grid = {}
         for i in range(N):
@@ -426,4 +439,27 @@ def main():
     # print(timeit.timeit('a_star_search_misplaced(initial, goal, N)', number=1))
     # print(timeit.timeit('breath_search(initial, goal, N)', number=1))
 
+
+def experiment():
+    '''
+    Imprime el tiempo promedio de ejecución y la cantidad de nodos expandidos de cada método
+    '''
+    COUNT = 10
+    METHODS = [a_star_search_manhattan, a_star_search_misplaced, breath_search]
+    sum_time = [0, 0, 0]
+    sum_expanded = [0, 0, 0]
+
+    for i, method in enumerate(METHODS):
+        for _ in range(COUNT):
+            start_time = time.time()
+            sum_expanded[i] = method()
+            sum_time[i] += time.time() - start_time
+
+    for i, method in enumerate(METHODS):
+        print(method.__name__)
+        print('Time: ', sum_time[i]/COUNT)
+        print('Expanded: ', sum_expanded[i])
+
+
 main()
+# experiment()

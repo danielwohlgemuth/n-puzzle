@@ -114,14 +114,13 @@ def create_puzzle():
     global initial
     initial = list(goal)
 
-    for _ in range(4):
+    for _ in range(2):
         random_pos = random.randrange(1, N*N)
-        swap(initial, 0, random_pos)
+        swap(initial, random_pos-1, random_pos)
 
     while not is_solvable():
-        print('not solvable')
         random_pos = random.randrange(1, N*N)
-        swap(initial, 0, random_pos)
+        swap(initial, random_pos-1, random_pos)
 
 
 def a_star_search_manhattan():
@@ -315,6 +314,7 @@ def breath_search():
 
 class App:
     def __init__(self, master):
+        master.title("N-Puzzle")
 
         tkinter.Label(master, text="N").grid(sticky="W", row=0)
         self.N = tkinter.IntVar()

@@ -6,6 +6,7 @@ from queue import PriorityQueue
 import heapq
 import tkinter
 import time
+import random
 
 
 N = 3
@@ -107,6 +108,20 @@ def print_puzzle(state):
     for i in range(N):
         print(state[i*N:i*N+N])
     print()
+
+
+def create_puzzle():
+    global initial
+    initial = list(goal)
+
+    for _ in range(4):
+        random_pos = random.randrange(1, N*N)
+        swap(initial, 0, random_pos)
+
+    while not is_solvable():
+        print('not solvable')
+        random_pos = random.randrange(1, N*N)
+        swap(initial, 0, random_pos)
 
 
 def a_star_search_manhattan():
@@ -313,6 +328,7 @@ class App:
         tkinter.OptionMenu(master, self.method, 'A* Manhattan', 'A* mal ubicados', 'Anchura').grid(row=1, column=1)
 
         tkinter.Button(master, text="Ejecutar", command=self.callback).grid(row=2, column=1)
+        tkinter.Button(master, text="Generar", command=self.generate).grid(row=2, column=2)
 
         self.tiempo = tkinter.StringVar()
         self.tiempo.set('')
@@ -359,8 +375,6 @@ class App:
             self.expandidos.set('')
             self.estado.set('No tiene solución')
 
-
-
     def update(self):
         global N, goal
         N = self.N.get()
@@ -387,12 +401,25 @@ class App:
         self.grid[N*N-1].insert(0, 0)
         # print(goal)
 
+    def generate(self):
+        create_puzzle()
+        self.grid = {}
+        for i in range(N):
+            for j in range(N):
+                self.grid[i*N+j] = tkinter.Entry(self.f, width=3)
+                self.grid[i*N+j].insert(0, initial[i*N+j])
+                self.grid[i*N+j].grid(row=i, column=j)
+
 
 def main():
 
     root = tkinter.Tk()
     app = App(root)
     root.mainloop()
+
+    # create_puzzle()
+    # print_puzzle(initial)
+    # a_star_search_manhattan()
 
     # Mide el tiempo de ejecucion
     # print(timeit.timeit('a_star_search_manhattan(initial, goal, N)', number=1))

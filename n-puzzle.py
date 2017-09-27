@@ -13,10 +13,15 @@ N = 3
 # 0 (cero) representa la pieza vacia
 goal = [1,2,3,4,5,6,7,8,0]
 #initial = [0,2,3,1,4,6,7,5,8]
-initial = [1,3,8,4,2,0,7,6,5]
+# initial = [1,3,8,4,2,0,7,6,5]
 #initial = [0,8,7,6,5,4,3,2,1]
 # Sin solucion
 #initial = [5,2,7,8,4,0,1,3,6]
+
+# Experimento
+initial = [0,8,7,6,5,4,3,2,1]
+#initial = [1,2,4,3,6,5,7,8,0]
+#initial = [2,1,4,3,5,6,7,8,0]
 
 #goal = [0,1,2,3,4,5,6,7,8]
 #initial = [2,4,0,1,8,5,3,6,7]
@@ -155,12 +160,12 @@ def a_star_search_manhattan():
         # Repetir para cada posible intercambio
         for pos in [empty_pos-1, empty_pos+1, empty_pos-N, empty_pos+N]:
             # Evita revertir al estado anterior
-            if pos != last_change or True:
+            if pos != last_change:
                 # Evita el desborde
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
                     counter += 1
-                    sequence.put((steps + manhattan(new_state), counter))
+                    sequence.put((steps+1 + manhattan(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
 
@@ -176,7 +181,7 @@ def a_star_search_manhattan():
     #    print_puzzle(step, N)
 
     # print('Manhattan')
-    # print('Cantidad de pasos:', len(solution))
+    # print('Cantidad de pasos:', len(solution)-1)
     # print('Nodos explorados:', counter - sequence.qsize())
     # print('Nodos en cola:', sequence.qsize())
     # print('Total de nodos:', counter)
@@ -218,12 +223,12 @@ def a_star_search_misplaced():
         # Repetir para cada posible intercambio
         for pos in [empty_pos-1, empty_pos+1, empty_pos-N, empty_pos+N]:
             # Evita revertir al estado anterior
-            if pos != last_change or True:
+            if pos != last_change:
                 # Evita el desborde
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
                     counter += 1
-                    sequence.put((steps + misplaced(new_state), counter))
+                    sequence.put((steps+1 + misplaced(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
 
@@ -239,7 +244,7 @@ def a_star_search_misplaced():
     #    print_puzzle(step, N)
 
     # print('Misplaced')
-    # print('Cantidad de pasos:', len(solution))
+    # print('Cantidad de pasos:', len(solution)-1)
     # print('Nodos explorados:', counter - sequence.qsize())
     # print('Nodos en cola:', sequence.qsize())
     # print('Total de nodos:', counter)
@@ -281,7 +286,7 @@ def breath_search():
         # Repetir para cada posible intercambio
         for pos in [empty_pos-1, empty_pos+1, empty_pos-N, empty_pos+N]:
             # Evita revertir al estado anterior
-            if pos != last_change or True:
+            if pos != last_change:
                 # Evita el desborde
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
@@ -303,7 +308,7 @@ def breath_search():
     #    print_puzzle(step, N)
 
     # print('Anchura')
-    # print('Cantidad de pasos:', len(solution))
+    # print('Cantidad de pasos:', len(solution)-1)
     # print('Nodos explorados:', counter - len(sequence))
     # print('Nodos en cola:', len(sequence))
     # print('Total de nodos:', counter)
@@ -339,10 +344,10 @@ class App:
         tkinter.Label(master, text="Tiempo (s)").grid(sticky="W", row=3)
         tkinter.Label(master, textvariable=self.tiempo).grid(row=3, column=1)
 
-        self.expandidos = tkinter.StringVar()
-        self.expandidos.set('')
-        tkinter.Label(master, text="Expandidos").grid(sticky="W", row=4)
-        tkinter.Label(master, textvariable=self.expandidos).grid(row=4, column=1)
+        self.explorados = tkinter.StringVar()
+        self.explorados.set('')
+        tkinter.Label(master, text="Explorados").grid(sticky="W", row=4)
+        tkinter.Label(master, textvariable=self.explorados).grid(row=4, column=1)
 
         self.estado = tkinter.StringVar()
         self.estado.set('')
@@ -369,17 +374,17 @@ class App:
             method = breath_search
         if is_solvable():
             self.tiempo.set('')
-            self.expandidos.set('')
+            self.explorados.set('')
             self.estado.set('')
             start_time = time.time()
             expanded = method()
             elapsed_time = time.time() - start_time
             # print(elapsed_time)
             self.tiempo.set('{:0.4f}'.format(elapsed_time))
-            self.expandidos.set(expanded)
+            self.explorados.set(expanded)
         else:
             self.tiempo.set('')
-            self.expandidos.set('')
+            self.explorados.set('')
             self.estado.set('No tiene solución')
 
     def update(self):

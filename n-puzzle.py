@@ -21,6 +21,20 @@ initial = [0,8,7,6,5,4,3,2,1]
 #initial = [2,1,4,3,5,6,7,8,0]
 
 
+class CONST(object):
+    '''
+    Guarda los nombres de los métodos para facilitar su modificación
+    '''
+    H2 = 'A* Manhattan'
+    H1 = 'A* Incorrectas'
+    BREATH = 'Anchura'
+
+    def __setattr__(self, *_):
+        pass
+
+CONST = CONST()
+
+
 def swap(state, pos_1, pos_2):
 
     state[pos_1], state[pos_2] = state[pos_2], state[pos_1]
@@ -96,6 +110,9 @@ def print_puzzle(state):
 
 
 def create_puzzle():
+    '''
+    Genera un puzzle aleatorio válido
+    '''
     global initial
     initial = list(goal)
 
@@ -138,10 +155,6 @@ def a_star_search_manhattan():
     sequence = PriorityQueue()
     hashtable = {}
 
-    if not is_solvable():
-        print('No tiene solucion')
-        exit()
-
     sequence.put((manhattan(initial), counter))
     # Cada entrada en hashtable contiene [padre, estado, cambio_anterior, pasos]
     hashtable[counter] = [0, initial, 0, 0]
@@ -173,7 +186,7 @@ def a_star_search_manhattan():
                     sequence.put((steps+1 + manhattan(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
-    # info('Manhattan', counter, sequence, hashtable, current)
+    # info(CONST.H2, counter, sequence, hashtable, current)
 
     return counter - sequence.qsize()
 
@@ -219,7 +232,7 @@ def a_star_search_misplaced():
                     sequence.put((steps+1 + misplaced(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
-    # info('Misplaced', counter, sequence, hashtable, current)
+    # info(CONST.H1, counter, sequence, hashtable, current)
 
     return counter - sequence.qsize()
 
@@ -266,12 +279,12 @@ def breath_search():
                     sequence.append(counter)
                     hashtable[counter] = [current, new_state, empty_pos]
 
-    # info('Anchura', counter, sequence, hashtable, current)
+    # info(CONST.BREATH, counter, sequence, hashtable, current)
 
     return counter - len(sequence)
 
 
-class App:
+class App(object):
     '''
     Construcción de la interfaz gráfica con Tkinter
     '''
@@ -286,9 +299,9 @@ class App:
         tkinter.Button(master, text="Actualizar", command=self.update).grid(row=0, column=2)
 
         self.method = tkinter.StringVar()
-        self.method.set('A* Manhattan')
+        self.method.set(CONST.H2)
         tkinter.Label(master, text="Método").grid(sticky="W", row=1)
-        tkinter.OptionMenu(master, self.method, 'A* Manhattan', 'A* mal ubicados', 'Anchura').grid(row=1, column=1)
+        tkinter.OptionMenu(master, self.method, CONST.H2, CONST.H1, CONST.BREATH).grid(row=1, column=1)
 
         tkinter.Button(master, text="Ejecutar", command=self.callback).grid(row=2, column=1)
         tkinter.Button(master, text="Generar", command=self.generate).grid(row=2, column=2)
@@ -320,9 +333,9 @@ class App:
         for i in range(N*N):
             initial.append(int(self.grid[i].get()))
 
-        if self.method.get() == 'A* Manhattan':
+        if self.method.get() == CONST.H2:
             method = a_star_search_manhattan
-        elif self.method.get() == 'A* mal ubicados':
+        elif self.method.get() == CONST.H1:
             method = a_star_search_misplaced
         else:
             method = breath_search

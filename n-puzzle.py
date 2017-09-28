@@ -14,31 +14,11 @@ N = 3
 goal = [1,2,3,4,5,6,7,8,0]
 #initial = [0,2,3,1,4,6,7,5,8]
 # initial = [1,3,8,4,2,0,7,6,5]
-#initial = [0,8,7,6,5,4,3,2,1]
-# Sin solucion
-#initial = [5,2,7,8,4,0,1,3,6]
 
 # Experimento
 initial = [0,8,7,6,5,4,3,2,1]
 #initial = [1,2,4,3,6,5,7,8,0]
 #initial = [2,1,4,3,5,6,7,8,0]
-
-#goal = [0,1,2,3,4,5,6,7,8]
-#initial = [2,4,0,1,8,5,3,6,7]
-#initial = [7,2,4,5,0,6,8,3,1]
-
-#N = 4
-#goal = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0]
-#initial = [1,2,3,4,5,6,7,8,9,10,11,12,13,0,14,15]
-#initial = [15,8,9,14,5,10,1,0,12,4,3,13,11,2,7,6]
-#initial = [1,2,3,4,5,6,7,8,9,12,11,14,0,15,13,10]
-#initial = [1,2,3,4,6,7,0,11,5,12,14,8,9,15,13,10]
-#initial = [0,6,1,10,11,4,5,13,2,8,7,15,3,14,12,9]
-#initial = [2,3,0,13,1,15,10,4,8,9,7,6,11,5,14,12]
-#initial = [15,0,8,10,2,1,7,14,13,4,5,3,9,6,12,11]
-# Sin solucion
-#initial = [13,9,7,15,3,6,8,4,11,10,2,12,5,1,14,0]
-#initial = [15,2,1,12,8,5,6,11,4,9,10,7,3,14,13,0]
 
 
 def swap(state, pos_1, pos_2):
@@ -119,13 +99,38 @@ def create_puzzle():
     global initial
     initial = list(goal)
 
-    for _ in range(2):
+    for _ in range(4):
         random_pos = random.randrange(1, N*N)
-        swap(initial, random_pos-1, random_pos)
+        swap(initial, 0, random_pos)
 
     while not is_solvable():
         random_pos = random.randrange(1, N*N)
-        swap(initial, random_pos-1, random_pos)
+        swap(initial, 0, random_pos)
+
+
+def info(method_name, counter, sequence, hashtable, current):
+    '''
+    Imprime información útil para el debuging como los pasos de solución, 
+    la profundidad, nodos explorados, en cola y el total
+    '''
+    solution = deque()
+
+    # Recorre el arbol desde la solucion hasta el inicio
+    while current != 0:
+        solution.appendleft(hashtable[current][1])
+        current = hashtable[current][0]
+
+    # Imprime el resultado
+    # for step in solution:
+    #    print_puzzle(step, N)
+
+    print(method_name)
+    print('Profundidad:', len(solution)-1)
+    unexplored = sequence.qsize() if hasattr(sequence, 'qsize') else len(sequence)
+    print('Nodos explorados:', counter - unexplored)
+    print('Nodos en cola:', unexplored)
+    print('Total de nodos:', counter)
+    print()
 
 
 def a_star_search_manhattan():
@@ -168,24 +173,7 @@ def a_star_search_manhattan():
                     sequence.put((steps+1 + manhattan(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
-
-    # solution = deque()
-
-    # Recorre el arbol desde la solucion hasta el inicio
-    # while current != 0:
-    #     solution.appendleft(hashtable[current][1])
-    #     current = hashtable[current][0]
-
-    # Imprime el resultado
-    #for step in solution:
-    #    print_puzzle(step, N)
-
-    # print('Manhattan')
-    # print('Cantidad de pasos:', len(solution)-1)
-    # print('Nodos explorados:', counter - sequence.qsize())
-    # print('Nodos en cola:', sequence.qsize())
-    # print('Total de nodos:', counter)
-    # print()
+    # info('Manhattan', counter, sequence, hashtable, current)
 
     return counter - sequence.qsize()
 
@@ -231,24 +219,7 @@ def a_star_search_misplaced():
                     sequence.put((steps+1 + misplaced(new_state), counter))
                     hashtable[counter] = [current, new_state, empty_pos, steps+1]
 
-
-    # solution = deque()
-
-    # Recorre el arbol desde la solucion hasta el inicio
-    # while current != 0:
-    #     solution.appendleft(hashtable[current][1])
-    #     current = hashtable[current][0]
-
-    # Imprime el resultado
-    #for step in solution:
-    #    print_puzzle(step, N)
-
-    # print('Misplaced')
-    # print('Cantidad de pasos:', len(solution)-1)
-    # print('Nodos explorados:', counter - sequence.qsize())
-    # print('Nodos en cola:', sequence.qsize())
-    # print('Total de nodos:', counter)
-    # print()
+    # info('Misplaced', counter, sequence, hashtable, current)
 
     return counter - sequence.qsize()
 
@@ -295,24 +266,7 @@ def breath_search():
                     sequence.append(counter)
                     hashtable[counter] = [current, new_state, empty_pos]
 
-
-    # solution = deque()
-
-    # Recorre el arbol desde la solucion hasta el inicio
-    # while current != 0:
-    #     solution.appendleft(hashtable[current][1])
-    #     current = hashtable[current][0]
-
-    # Imprime el resultado
-    # for step in solution:
-    #    print_puzzle(step, N)
-
-    # print('Anchura')
-    # print('Cantidad de pasos:', len(solution)-1)
-    # print('Nodos explorados:', counter - len(sequence))
-    # print('Nodos en cola:', len(sequence))
-    # print('Total de nodos:', counter)
-    # print()
+    # info('Anchura', counter, sequence, hashtable, current)
 
     return counter - len(sequence)
 

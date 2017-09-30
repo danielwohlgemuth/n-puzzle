@@ -1,12 +1,11 @@
 
+import random
+import time
 import timeit
+import tkinter
 
 from collections import deque
 from queue import PriorityQueue
-import heapq
-import tkinter
-import time
-import random
 
 
 N = 3
@@ -16,10 +15,9 @@ goal = [1,2,3,4,5,6,7,8,0]
 # initial = [1,3,8,4,2,0,7,6,5]
 
 # Experimento
-initial = [0,8,7,6,5,4,3,2,1]
-#initial = [1,2,4,3,6,5,7,8,0]
-#initial = [2,1,4,3,5,6,7,8,0]
-
+initial = [2,1,4,3,5,6,7,8,0]
+#initial = [6,5,3,0,8,2,7,1,4]
+#initial = [0,8,7,6,5,4,3,2,1]
 
 class CONST(object):
     '''
@@ -116,13 +114,13 @@ def create_puzzle():
     global initial
     initial = list(goal)
 
-    for _ in range(4):
+    for _ in range(2):
         random_pos = random.randrange(1, N*N)
-        swap(initial, 0, random_pos)
+        swap(initial, random_pos-1, random_pos)
 
     while not is_solvable():
         random_pos = random.randrange(1, N*N)
-        swap(initial, 0, random_pos)
+        swap(initial, random_pos-1, random_pos)
 
 
 def info(method_name, counter, sequence, hashtable, current):
@@ -154,6 +152,10 @@ def a_star_search_manhattan():
     counter = 1
     sequence = PriorityQueue()
     hashtable = {}
+
+    if not is_solvable():
+        print('No tiene solucion')
+        return()
 
     sequence.put((manhattan(initial), counter))
     # Cada entrada en hashtable contiene [padre, estado, cambio_anterior, pasos]
@@ -199,7 +201,7 @@ def a_star_search_misplaced():
 
     if not is_solvable():
         print('No tiene solucion')
-        exit()
+        return()
 
     sequence.put((misplaced(initial), counter))
     # Cada entrada en hashtable contiene [padre, estado, cambio_anterior, pasos]
@@ -244,7 +246,7 @@ def breath_search():
 
     if not is_solvable():
         print('No tiene solucion')
-        exit()
+        return()
 
     sequence = deque()
     sequence.append(counter)
@@ -274,7 +276,6 @@ def breath_search():
                 # Evita el desborde
                 if pos >= 0 and pos < N*N:
                     new_state = swap(state.copy(), empty_pos, pos)
-
                     counter += 1
                     sequence.append(counter)
                     hashtable[counter] = [current, new_state, empty_pos]
@@ -346,7 +347,6 @@ class App(object):
             start_time = time.time()
             expanded = method()
             elapsed_time = time.time() - start_time
-            # print(elapsed_time)
             self.tiempo.set('{:0.4f}'.format(elapsed_time))
             self.explorados.set(expanded)
         else:
@@ -381,7 +381,6 @@ class App(object):
         goal[N*N-1] = 0
         self.grid[N*N-1].delete(0, tkinter.END)
         self.grid[N*N-1].insert(0, 0)
-        # print(goal)
 
     def generate(self):
         '''
@@ -407,30 +406,44 @@ def main():
     # a_star_search_manhattan()
 
     # Mide el tiempo de ejecucion
-    # print(timeit.timeit('a_star_search_manhattan(initial, goal, N)', number=1))
-    # print(timeit.timeit('a_star_search_misplaced(initial, goal, N)', number=1))
-    # print(timeit.timeit('breath_search(initial, goal, N)', number=1))
+    # print(timeit.timeit('a_star_search_manhattan()', number=1))
+    # print(timeit.timeit('a_star_search_misplaced()', number=1))
+    # print(timeit.timeit('breath_search()', number=1))
 
 
 def experiment():
     '''
     Imprime el tiempo promedio de ejecución y la cantidad de nodos expandidos de cada método
     '''
+    global N, goal, initial
+    N = 3
+    goal = [1,2,3,4,5,6,7,8,0]
+    
+    # Precalentamiento
+    initial = [2,1,4,3,5,6,7,8,0]
+    for _ in range(30):
+        a_star_search_manhattan()
+
     COUNT = 10
     METHODS = [a_star_search_manhattan, a_star_search_misplaced, breath_search]
-    sum_time = [0, 0, 0]
-    sum_expanded = [0, 0, 0]
 
-    for i, method in enumerate(METHODS):
-        for _ in range(COUNT):
-            start_time = time.time()
-            sum_expanded[i] = method()
-            sum_time[i] += time.time() - start_time
+    for initial in [2,1,4,3,5,6,7,8,0], [6,5,3,0,8,2,7,1,4], [0,8,7,6,5,4,3,2,1]:
+        # initial = x
+        print(initial)
+        for i, method in enumerate(METHODS):
+            sum_time = [0, 0, 0]
+            sum_expanded = [0, 0, 0]
+            try:
+                for _ in range(COUNT):
+                    start_time = time.time()
+                    sum_expanded[i] = method()
+                    sum_time[i] += (time.time() - start_time)/COUNT
+            except MemoryError:
+                pass
 
-    for i, method in enumerate(METHODS):
-        print(method.__name__)
-        print('Time: ', sum_time[i]/COUNT)
-        print('Expanded: ', sum_expanded[i])
+            print(method.__name__)
+            print('Time: ', sum_time[i])
+            print('Expanded: ', sum_expanded[i])
 
 
 main()
